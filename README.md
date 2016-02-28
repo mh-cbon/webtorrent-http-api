@@ -23,7 +23,7 @@ Options
 
 Config
   The configuration is a plain json object describing several options to
-  apply to your instance of http-file-store.
+  apply to your server instance.
   {
     "base_url": "/base/url/to/serve/the/api",
     "dl_path": "/path/to/the/folder/to/download/files",
