@@ -1,18 +1,6 @@
-# webtorrent-http-api
+#!/usr/bin/env node
 
-json http api for webtorrent
-
-# Install
-
-```
-npm i mh-cbon/webtorrent-http-api -g
-```
-
-# Usage
-
-```
-webtorrent-http-api 1.0.0
-  json http api for webtorrent
+function usage () {/*
 
 Usage
   webtorrent-http-api --config=/path/to/config.json
@@ -47,21 +35,64 @@ Config
       "host": "a host value to listen for http requests",
     }
   }
-```
+*/}
+var pkg   = require('./package.json')
+var argv  = require('minimist')(process.argv.slice(2));
+var help  = require('@maboiteaspam/show-help')(usage, argv.h||argv.help, pkg)
+var debug = require('@maboiteaspam/set-verbosity')(pkg.name, argv.v || argv.verbose);
+var fs    = require('fs')
 
-# Api
+const configPath  = argv.config || argv.c || false;
 
-An api is provided on top of `express`.
+(!configPath) && help.print(usage, pkg) && help.die(
+  "Wrong invokation"
+);
 
-## Install
+var config = {}
+try{
+  config = require(configPath)
+}catch(ex){
+  help.die(
+    "Config path must exist and be a valid JSON file.\n" + ex
+  );
+}
 
-```
-npm i mh-cbon/webtorrent-http-api --save
-```
+(!config) && help.print(usage, pkg)
+&& help.die(
+  "The configuration could not be loaded, please double check the file"
+);
 
-## Usage
+(!config.clear || !config.ssl)
+&& help.print(usage, pkg)
+&& help.die(
+  "Configuration options are wrong : you must provide one of clear or ssl options"
+);
 
-```js
+(config.dl_path && !fs.existsSync(config.dl_path))
+&& help.print(usage, pkg)
+&& help.die(
+  "Configuration options are wrong : dl_path directory must exist"
+);
+
+(config.ssl && !fs.existsSync(config.ssl.key))
+&& help.print(usage, pkg)
+&& help.die(
+  "Configuration options are wrong : SSL key file must exist"
+);
+
+(config.ssl && config.ssl.ca && !fs.existsSync(config.ssl.ca))
+&& help.print(usage, pkg)
+&& help.die(
+  "Configuration options are wrong : SSL ca file must exist"
+);
+
+(config.ssl && !fs.existsSync(config.ssl.cert))
+&& help.print(usage, pkg)
+&& help.die(
+  "Configuration options are wrong : SSL cert file must exist"
+);
+
+
 var http        = require('http');
 var https       = require('https');
 var express     = require('express');
@@ -93,15 +124,18 @@ app.post(config.base_url + "/filetorrentinfo",      wtHttpApi.fileTorrentInfo())
 app.post(config.base_url + "/filetorrentselect",    wtHttpApi.fileTorrentSelect());
 app.post(config.base_url + "/filetorrentdeselect",  wtHttpApi.fileTorrentDeselect());
 
+
+
+if ( config.ssl && config.ssl.key && config.ssl.cert ) {
+  var SSL = https.createServer( {
+      key: fs.readFileSync( config.ssl.key ),
+      cert: fs.readFileSync( config.ssl.cert ),
+      ca: config.ssl.ca || []
+  }, app );
+
+  SSL.listen(config.ssl.port, config.ssl.host);
+}
+
 var CLEAR = http.createServer( app );
 
 CLEAR.listen(config.clear.port, config.clear.host);
-```
-
-## Documentation
-
-Please check the source code at that moment.
-
-# Read more
-- https://github.com/feross/webtorrent
-- http://expressjs.com/en/api.html

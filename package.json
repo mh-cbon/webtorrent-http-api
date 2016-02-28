@@ -1,0 +1,29 @@
+{
+  "name": "webtorrent-http-api",
+  "version": "1.0.0",
+  "description": "json http api for webtorrent",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mh-cbon/webtorrent-http-api.git"
+  },
+  "keywords": [],
+  "author": "mh-cbon <mh-cbon@users.noreply.github.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mh-cbon/webtorrent-http-api/issues"
+  },
+  "homepage": "https://github.com/mh-cbon/webtorrent-http-api#readme",
+  "dependencies": {
+    "@maboiteaspam/set-verbosity": "^2.0.3",
+    "@maboiteaspam/show-help": "^3.0.0",
+    "body-parser": "^1.15.0",
+    "express": "^4.13.4",
+    "get-port": "^2.1.0",
+    "minimist": "^1.2.0",
+    "webtorrent": "^0.79.1"
+  }
+}
