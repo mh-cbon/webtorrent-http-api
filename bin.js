@@ -62,7 +62,7 @@ try{
   "The configuration could not be loaded, please double check the file"
 );
 
-(!config.clear || !config.ssl)
+(!config.clear && !config.ssl)
 && help.print(usage, pkg)
 && help.die(
   "Configuration options are wrong : you must provide one of clear or ssl options"
