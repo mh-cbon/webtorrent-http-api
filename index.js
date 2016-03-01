@@ -235,8 +235,15 @@ function wtHttpApi (opts) {
   }
 
 
+  var destroy = function () {
+    client && client.destroy(then);
+    client = null;
+  }
+
 
   return {
+    destroy:              destroy,
+    
     start:                start,
     stop:                 stop,
 

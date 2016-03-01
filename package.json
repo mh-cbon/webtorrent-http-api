@@ -21,9 +21,13 @@
     "@maboiteaspam/set-verbosity": "^2.0.3",
     "@maboiteaspam/show-help": "^3.0.0",
     "body-parser": "^1.15.0",
+    "cors": "^2.7.1",
     "express": "^4.13.4",
     "get-port": "^2.1.0",
     "minimist": "^1.2.0",
     "webtorrent": "^0.79.1"
+  },
+  "devDependencies": {
+    "create-torrent": "^3.22.2"
   }
 }

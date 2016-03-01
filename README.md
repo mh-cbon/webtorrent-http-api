@@ -40,11 +40,19 @@ Config
       "host": "a host value to listen for https requests",
       "key": "a path to an SSL key",
       "ca": "a path to the SSL CA file",
-      "cert": "a path to the SSL cert file",
+      "cert": "a path to the SSL cert file"
     },
     "clear": {
       "port": "a number, or null for a random port",
-      "host": "a host value to listen for http requests",
+      "host": "a host value to listen for http requests"
+    },
+    "cors": {
+      "origin": "*",
+      "credentials": "true|false",
+      "methods": ["GET", "PUT", "POST"],
+      "allowedHeaders": ["Content-Type", "Authorization"],
+      "exposedHeaders": ["Content-Range", "X-Content-Range"],
+      "maxAge": 600
     }
   }
 ```

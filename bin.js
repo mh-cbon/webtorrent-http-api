@@ -28,11 +28,19 @@ Config
       "host": "a host value to listen for https requests",
       "key": "a path to an SSL key",
       "ca": "a path to the SSL CA file",
-      "cert": "a path to the SSL cert file",
+      "cert": "a path to the SSL cert file"
     },
     "clear": {
       "port": "a number, or null for a random port",
-      "host": "a host value to listen for http requests",
+      "host": "a host value to listen for http requests"
+    },
+    "cors": {
+      "origin": "*",
+      "credentials": "true|false",
+      "methods": ["GET", "PUT", "POST"],
+      "allowedHeaders": ["Content-Type", "Authorization"],
+      "exposedHeaders": ["Content-Range", "X-Content-Range"],
+      "maxAge": 600
     }
   }
 */}
@@ -101,6 +109,12 @@ var wtHttpApi   = require('./index.js')(config.webtorrent);
 
 var app = express();
 
+config.clear && console.log("%s clear %j", pkg.name, config.clear);
+config.ssl && console.log("%s ssl %j", pkg.name, config.ssl);
+
+config.cors && console.log("%s cors %j", pkg.name, config.cors);
+config.cors && app.use(cors(config.cors));
+
 var base_url = config.base_url || '/';
 
 app.use(bodyParser.json())
@@ -139,3 +153,11 @@ if ( config.ssl && config.ssl.key && config.ssl.cert ) {
 var CLEAR = http.createServer( app );
 
 CLEAR.listen(config.clear.port, config.clear.host);
+
+var tearDown = function (then) {
+  CLEAR.close();
+  SSL && SSL.close();
+  wtHttpApi.destroy();
+}
+process.on('beforeExit', tearDown)
+process.on('SIGINT', tearDown)
