@@ -50,7 +50,9 @@ var help  = require('@maboiteaspam/show-help')(usage, argv.h||argv.help, pkg)
 var debug = require('@maboiteaspam/set-verbosity')(pkg.name, argv.v || argv.verbose);
 var fs    = require('fs')
 
-const configPath  = argv.config || argv.c || false;
+var configPath  = argv.config || argv.c || false;
+configPath      = process.join(process.cdw(), configPath)
+configPath      = process.resolve(configPath)
 
 (!configPath) && help.print(usage, pkg) && help.die(
   "Wrong invokation"
@@ -76,7 +78,7 @@ try{
   "Configuration options are wrong : you must provide one of clear or ssl options"
 );
 
-(config.dl_path && !fs.existsSync(config.dl_path))
+(!config.dl_path || !fs.existsSync(config.dl_path))
 && help.print(usage, pkg)
 && help.die(
   "Configuration options are wrong : dl_path directory must exist"
