@@ -1,0 +1,164 @@
+<html>
+<head>
+  <title>webtorrent http api demo</title>
+</head>
+<body>
+  <h1>Seed a torrent</h1>
+  <div>
+    <form name="seed">
+      <input type="file" value="" name="file" />
+      <input type="submit" value="Publish" />
+      <pre name="results"></pre>
+    </form>
+    <script>
+      (function () {
+        var seed    = document.getElementsByName("seed")[0];
+        var file    = seed.querySelector("input[name='file']");
+        var results = seed.querySelector("[name='results']");
+
+        function sendFile(then){
+          var fileData = file.files[0];
+          var action = 'http://127.0.0.1:8082/?overwrite=1';
+          var xhr = new XMLHttpRequest();
+          xhr.onreadystatechange = function(ev){
+            if(xhr.readyState == 4) {
+              var res = JSON.parse(xhr.responseText).filter(function (info){
+                return info.name === fileData.name
+              })[0].absolute_path;
+              then && then(res)
+            }
+          };
+          xhr.open('POST', action, true);
+          var data = new FormData();
+          data.append('file', fileData);
+          xhr.send(data);
+        }
+        function seedFile(filePath, then){
+            var xhr = new XMLHttpRequest();
+            var action = 'http://127.0.0.1:8081/seed';
+
+            xhr.open("POST", action, true);
+
+            var params = {
+              torrent: filePath
+            };
+            params = JSON.stringify(params)
+
+            xhr.setRequestHeader('Content-type', 'application/json;charset=UTF-8');
+            xhr.setRequestHeader("Content-length", params.length);
+            xhr.setRequestHeader("Connection", "close");
+
+            xhr.onreadystatechange = function() {
+              if(xhr.readyState == 4) {
+                then && then(JSON.parse(xhr.responseText))
+              }
+            };
+
+            xhr.send(params);
+        }
+
+        seed.addEventListener('submit', function (e) {
+          e.preventDefault();
+
+          try{
+            sendFile(function (filePath) {
+              seedFile(filePath, function (res) {
+                console.log(res)
+                results.innerHTML = JSON.stringify(
+                  res, null, 4
+                )
+              })
+            })
+
+          }catch(ex){
+            results.innerHTML = "" + ex
+          }
+        })
+      })();
+    </script>
+  </div>
+  <h1>Dld a torrent</h1>
+  <div>
+    <form enctype="multipart/form-data" method="POST"
+      name="dld">
+      <input type="text" placeholder="torrrent infohash, file path, magnet uri"
+      value="" name="torrent" />
+      <input type="submit" value="Donwload !" />
+      <pre name="results"></pre>
+    </form>
+    <script>
+      (function () {
+        var dld = document.getElementsByName("dld")[0];
+
+        var torrent   = dld.querySelector("input[name='torrent']");
+        var results   = dld.querySelector("pre[name='results']");
+
+        dld.addEventListener('submit', function (e) {
+          e.preventDefault();
+
+          var xhr = new XMLHttpRequest();
+          var action = 'http://127.0.0.1:8081/add';
+
+          xhr.open("POST", action, true);
+
+          var params = {
+            torrent: torrent.value,
+            immediate: true
+          };
+          params = JSON.stringify(params)
+
+          xhr.setRequestHeader('Content-type', 'application/json;charset=UTF-8');
+          xhr.setRequestHeader("Content-length", params.length);
+          xhr.setRequestHeader("Connection", "close");
+
+          xhr.onreadystatechange = function() {
+            if(xhr.readyState == 4) {
+              console.log(xhr.responseText);
+              results.innerHTML = JSON.stringify(
+                JSON.parse(xhr.responseText), null, 4
+              )
+            }
+          }
+          xhr.send(params);
+        })
+      })();
+    </script>
+  </div>
+  <h1>List all torrents</h1>
+  <div>
+    <form enctype="multipart/form-data" method="POST"
+      name="list_all">
+      <input type="submit" value="List torrents" />
+      <pre name="results"></pre>
+    </form>
+    <script>
+      (function () {
+        var list_all = document.getElementsByName("list_all")[0];
+
+        var results   = list_all.querySelector("pre[name='results']");
+
+        list_all.addEventListener('submit', function (e) {
+          e.preventDefault();
+
+          var xhr = new XMLHttpRequest();
+          var action = 'http://127.0.0.1:8081/status';
+
+          xhr.open("POST", action, true);
+
+          xhr.setRequestHeader('Content-type', 'application/json;charset=UTF-8');
+          xhr.setRequestHeader("Connection", "close");
+
+          xhr.onreadystatechange = function() {
+            if(xhr.readyState == 4) {
+              results.innerHTML = JSON.stringify(
+                JSON.parse(xhr.responseText), null, 4
+              )
+            }
+          }
+          xhr.send();
+        })
+      })();
+    </script>
+  </div>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "base": "./store",
+  "url_base": "/",
+  "upload_path": "tmp",
+  "show_absolute_path": true,
+  "allow_overwrite": true,
+  "clear": {
+    "port": 8082,
+    "host": "localhost"
+  },
+  "cors": {
+      "origin": "*",
+      "credentials": "true",
+      "methods": ["GET", "POST"]
+  }
+}
