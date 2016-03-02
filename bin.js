@@ -49,10 +49,11 @@ var argv  = require('minimist')(process.argv.slice(2));
 var help  = require('@maboiteaspam/show-help')(usage, argv.h||argv.help, pkg)
 var debug = require('@maboiteaspam/set-verbosity')(pkg.name, argv.v || argv.verbose);
 var fs    = require('fs')
+var path  = require('path')
 
 var configPath  = argv.config || argv.c || false;
-configPath      = process.join(process.cdw(), configPath)
-configPath      = process.resolve(configPath)
+configPath      = path.join(process.cwd(), configPath);
+configPath      = path.resolve(configPath);
 
 (!configPath) && help.print(usage, pkg) && help.die(
   "Wrong invokation"
@@ -78,7 +79,16 @@ try{
   "Configuration options are wrong : you must provide one of clear or ssl options"
 );
 
-(!config.dl_path || !fs.existsSync(config.dl_path))
+(!config.dl_path)
+&& help.print(usage, pkg)
+&& help.die(
+  "Configuration options are wrong : dl_path must be confgured"
+);
+
+var dlPath = path.join(process.cwd(), config.dl_path);
+dlPath     = path.resolve(dlPath);
+
+(!fs.existsSync(dlPath))
 && help.print(usage, pkg)
 && help.die(
   "Configuration options are wrong : dl_path directory must exist"
@@ -106,11 +116,13 @@ try{
 var http        = require('http');
 var https       = require('https');
 var express     = require('express');
+var cors        = require('cors');
 var bodyParser  = require('body-parser');
 var wtHttpApi   = require('./index.js')(config.webtorrent);
 
 var app = express();
 
+console.log("%s dlPath %s", pkg.name, dlPath);
 config.clear && console.log("%s clear %j", pkg.name, config.clear);
 config.ssl && console.log("%s ssl %j", pkg.name, config.ssl);
 
@@ -123,7 +135,7 @@ app.use(bodyParser.json())
 app.post(config.base_url + "/start",                wtHttpApi.start());
 app.post(config.base_url + "/stop",                 wtHttpApi.stop());
 app.post(config.base_url + "/status",               wtHttpApi.status());
-app.post(config.base_url + "/add",                  wtHttpApi.add(config.dl_path));
+app.post(config.base_url + "/add",                  wtHttpApi.add(dlPath));
 app.post(config.base_url + "/seed",                 wtHttpApi.seed());
 app.post(config.base_url + "/status",               wtHttpApi.status());
 app.post(config.base_url + "/remove",               wtHttpApi.remove());
