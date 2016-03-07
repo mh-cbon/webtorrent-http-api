@@ -168,7 +168,7 @@ var CLEAR = http.createServer( app );
 
 CLEAR.listen(config.clear.port, config.clear.host);
 
-var tearDown = function (then) {
+var tearDown = function () {
   CLEAR.close();
   SSL && SSL.close();
   wtHttpApi.destroy();
