@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "json http api for webtorrent",
   "main": "index.js",
+  "bin": {
+    "webtorrent-http-api": "./bin.js"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
