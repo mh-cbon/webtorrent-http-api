@@ -5,7 +5,7 @@ json http api for webtorrent
 # Install
 
 ```
-npm i mh-cbon/webtorrent-http-api -g
+npm i @mh-cbon/webtorrent-http-api -g
 ```
 
 # Usage
