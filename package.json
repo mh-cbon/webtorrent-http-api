@@ -1,6 +1,6 @@
 {
   "name": "@mh-cbon/webtorrent-http-api",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "json http api for webtorrent",
   "main": "index.js",
   "bin": {
