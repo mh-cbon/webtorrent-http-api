@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Webtorrent-http-api by mh-cbon</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">Webtorrent-http-api</h1>
+      <h2 class="project-tagline">json http api for webtorrent</h2>
+      <a href="https://github.com/mh-cbon/webtorrent-http-api" class="btn">View on GitHub</a>
+      <a href="https://github.com/mh-cbon/webtorrent-http-api/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/mh-cbon/webtorrent-http-api/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <h1>
+<a id="webtorrent-http-api" class="anchor" href="#webtorrent-http-api" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>webtorrent-http-api</h1>
+
+<p>json http api for webtorrent</p>
+
+<h1>
+<a id="install" class="anchor" href="#install" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Install</h1>
+
+<pre><code>npm i @mh-cbon/webtorrent-http-api -g
+</code></pre>
+
+<h1>
+<a id="usage" class="anchor" href="#usage" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Usage</h1>
+
+<pre><code>webtorrent-http-api 1.0.0
+  json http api for webtorrent
+
+Usage
+  webtorrent-http-api --config=/path/to/config.json
+
+Options
+  --config  | -c   Path to the JSON configuration file
+  --verbose | -v   Enable verbosity pass in the module list to debug.
+
+Config
+  The configuration is a plain json object describing several options to
+  apply to your server instance.
+  {
+    "base_url": "/base/url/to/serve/the/api",
+    "dl_path": "/path/to/the/folder/to/download/files",
+    "webtorrent": {
+      immediate: Boolean,     // Starts the torrent server asap
+      dht: Boolean|Object,    // Enable DHT (default=true), or options object for DHT
+      max_conns: Number,      // Max number of connections per torrent (default=55)
+      node_id: String|Buffer, // DHT protocol node ID (default=randomly generated)
+      peer_id: String|Buffer, // Wire protocol peer ID (default=randomly generated)
+      tracker: Boolean        // Whether or not to enable trackers (default=true)
+    },
+    "ssl": {
+      "port": "a number, or null for a random port",
+      "host": "a host value to listen for https requests",
+      "key": "a path to an SSL key",
+      "ca": "a path to the SSL CA file",
+      "cert": "a path to the SSL cert file"
+    },
+    "clear": {
+      "port": "a number, or null for a random port",
+      "host": "a host value to listen for http requests"
+    },
+    "cors": {
+      "origin": "*",
+      "credentials": "true|false",
+      "methods": ["GET", "PUT", "POST"],
+      "allowedHeaders": ["Content-Type", "Authorization"],
+      "exposedHeaders": ["Content-Range", "X-Content-Range"],
+      "maxAge": 600
+    }
+  }
+</code></pre>
+
+<h1>
+<a id="api" class="anchor" href="#api" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Api</h1>
+
+<p>An api is provided on top of <code>express</code>.</p>
+
+<h2>
+<a id="install-1" class="anchor" href="#install-1" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Install</h2>
+
+<pre><code>npm i mh-cbon/webtorrent-http-api --save
+</code></pre>
+
+<h2>
+<a id="usage-1" class="anchor" href="#usage-1" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Usage</h2>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-k">var</span> http        <span class="pl-k">=</span> <span class="pl-c1">require</span>(<span class="pl-s"><span class="pl-pds">'</span>http<span class="pl-pds">'</span></span>);
+<span class="pl-k">var</span> https       <span class="pl-k">=</span> <span class="pl-c1">require</span>(<span class="pl-s"><span class="pl-pds">'</span>https<span class="pl-pds">'</span></span>);
+<span class="pl-k">var</span> express     <span class="pl-k">=</span> <span class="pl-c1">require</span>(<span class="pl-s"><span class="pl-pds">'</span>express<span class="pl-pds">'</span></span>);
+<span class="pl-k">var</span> bodyParser  <span class="pl-k">=</span> <span class="pl-c1">require</span>(<span class="pl-s"><span class="pl-pds">'</span>body-parser<span class="pl-pds">'</span></span>);
+<span class="pl-k">var</span> wtHttpApi   <span class="pl-k">=</span> <span class="pl-c1">require</span>(<span class="pl-s"><span class="pl-pds">'</span>./index.js<span class="pl-pds">'</span></span>)(<span class="pl-smi">config</span>.<span class="pl-smi">webtorrent</span>);
+
+<span class="pl-k">var</span> app <span class="pl-k">=</span> <span class="pl-en">express</span>();
+
+<span class="pl-k">var</span> base_url <span class="pl-k">=</span> <span class="pl-smi">config</span>.<span class="pl-smi">base_url</span> <span class="pl-k">||</span> <span class="pl-s"><span class="pl-pds">'</span>/<span class="pl-pds">'</span></span>;
+
+<span class="pl-smi">app</span>.<span class="pl-en">use</span>(<span class="pl-smi">bodyParser</span>.<span class="pl-en">json</span>())
+<span class="pl-smi">app</span>.<span class="pl-en">post</span>(<span class="pl-smi">config</span>.<span class="pl-smi">base_url</span> <span class="pl-k">+</span> <span class="pl-s"><span class="pl-pds">"</span>/start<span class="pl-pds">"</span></span>,                <span class="pl-smi">wtHttpApi</span>.<span class="pl-c1">start</span>());
+<span class="pl-smi">app</span>.<span class="pl-en">post</span>(<span class="pl-smi">config</span>.<span class="pl-smi">base_url</span> <span class="pl-k">+</span> <span class="pl-s"><span class="pl-pds">"</span>/stop<span class="pl-pds">"</span></span>,                 <span class="pl-smi">wtHttpApi</span>.<span class="pl-c1">stop</span>());
+<span class="pl-smi">app</span>.<span class="pl-en">post</span>(<span class="pl-smi">config</span>.<span class="pl-smi">base_url</span> <span class="pl-k">+</span> <span class="pl-s"><span class="pl-pds">"</span>/status<span class="pl-pds">"</span></span>,               <span class="pl-smi">wtHttpApi</span>.<span class="pl-c1">status</span>());
+<span class="pl-smi">app</span>.<span class="pl-en">post</span>(<span class="pl-smi">config</span>.<span class="pl-smi">base_url</span> <span class="pl-k">+</span> <span class="pl-s"><span class="pl-pds">"</span>/add<span class="pl-pds">"</span></span>,                  <span class="pl-smi">wtHttpApi</span>.<span class="pl-c1">add</span>(<span class="pl-smi">config</span>.<span class="pl-smi">dl_path</span>));
+<span class="pl-smi">app</span>.<span class="pl-en">post</span>(<span class="pl-smi">config</span>.<span class="pl-smi">base_url</span> <span class="pl-k">+</span> <span class="pl-s"><span class="pl-pds">"</span>/seed<span class="pl-pds">"</span></span>,                 <span class="pl-smi">wtHttpApi</span>.<span class="pl-en">seed</span>());
+<span class="pl-smi">app</span>.<span class="pl-en">post</span>(<span class="pl-smi">config</span>.<span class="pl-smi">base_url</span> <span class="pl-k">+</span> <span class="pl-s"><span class="pl-pds">"</span>/status<span class="pl-pds">"</span></span>,               <span class="pl-smi">wtHttpApi</span>.<span class="pl-c1">status</span>());
+<span class="pl-smi">app</span>.<span class="pl-en">post</span>(<span class="pl-smi">config</span>.<span class="pl-smi">base_url</span> <span class="pl-k">+</span> <span class="pl-s"><span class="pl-pds">"</span>/remove<span class="pl-pds">"</span></span>,               <span class="pl-smi">wtHttpApi</span>.<span class="pl-en">remove</span>());
+<span class="pl-smi">app</span>.<span class="pl-en">post</span>(<span class="pl-smi">config</span>.<span class="pl-smi">base_url</span> <span class="pl-k">+</span> <span class="pl-s"><span class="pl-pds">"</span>/torrentinfo<span class="pl-pds">"</span></span>,          <span class="pl-smi">wtHttpApi</span>.<span class="pl-en">torrentInfo</span>());
+<span class="pl-smi">app</span>.<span class="pl-en">post</span>(<span class="pl-smi">config</span>.<span class="pl-smi">base_url</span> <span class="pl-k">+</span> <span class="pl-s"><span class="pl-pds">"</span>/torrentaddpeer<span class="pl-pds">"</span></span>,       <span class="pl-smi">wtHttpApi</span>.<span class="pl-en">torrentAddPeer</span>());
+<span class="pl-smi">app</span>.<span class="pl-en">post</span>(<span class="pl-smi">config</span>.<span class="pl-smi">base_url</span> <span class="pl-k">+</span> <span class="pl-s"><span class="pl-pds">"</span>/torrentselect<span class="pl-pds">"</span></span>,        <span class="pl-smi">wtHttpApi</span>.<span class="pl-en">torrentSelect</span>());
+<span class="pl-smi">app</span>.<span class="pl-en">post</span>(<span class="pl-smi">config</span>.<span class="pl-smi">base_url</span> <span class="pl-k">+</span> <span class="pl-s"><span class="pl-pds">"</span>/torrentdeselect<span class="pl-pds">"</span></span>,      <span class="pl-smi">wtHttpApi</span>.<span class="pl-en">torrentDeselect</span>());
+<span class="pl-smi">app</span>.<span class="pl-en">post</span>(<span class="pl-smi">config</span>.<span class="pl-smi">base_url</span> <span class="pl-k">+</span> <span class="pl-s"><span class="pl-pds">"</span>/torrentcritial<span class="pl-pds">"</span></span>,       <span class="pl-smi">wtHttpApi</span>.<span class="pl-en">torrentCritical</span>());
+<span class="pl-smi">app</span>.<span class="pl-en">post</span>(<span class="pl-smi">config</span>.<span class="pl-smi">base_url</span> <span class="pl-k">+</span> <span class="pl-s"><span class="pl-pds">"</span>/torrentstream<span class="pl-pds">"</span></span>,        <span class="pl-smi">wtHttpApi</span>.<span class="pl-en">torrentStream</span>());
+<span class="pl-smi">app</span>.<span class="pl-en">post</span>(<span class="pl-smi">config</span>.<span class="pl-smi">base_url</span> <span class="pl-k">+</span> <span class="pl-s"><span class="pl-pds">"</span>/torrentstreamstop<span class="pl-pds">"</span></span>,    <span class="pl-smi">wtHttpApi</span>.<span class="pl-en">torrentStreamStop</span>());
+<span class="pl-smi">app</span>.<span class="pl-en">post</span>(<span class="pl-smi">config</span>.<span class="pl-smi">base_url</span> <span class="pl-k">+</span> <span class="pl-s"><span class="pl-pds">"</span>/torrentpause<span class="pl-pds">"</span></span>,         <span class="pl-smi">wtHttpApi</span>.<span class="pl-en">torrentPause</span>());
+<span class="pl-smi">app</span>.<span class="pl-en">post</span>(<span class="pl-smi">config</span>.<span class="pl-smi">base_url</span> <span class="pl-k">+</span> <span class="pl-s"><span class="pl-pds">"</span>/torrentresume<span class="pl-pds">"</span></span>,        <span class="pl-smi">wtHttpApi</span>.<span class="pl-en">torrentResume</span>());
+<span class="pl-smi">app</span>.<span class="pl-en">post</span>(<span class="pl-smi">config</span>.<span class="pl-smi">base_url</span> <span class="pl-k">+</span> <span class="pl-s"><span class="pl-pds">"</span>/filetorrentinfo<span class="pl-pds">"</span></span>,      <span class="pl-smi">wtHttpApi</span>.<span class="pl-en">fileTorrentInfo</span>());
+<span class="pl-smi">app</span>.<span class="pl-en">post</span>(<span class="pl-smi">config</span>.<span class="pl-smi">base_url</span> <span class="pl-k">+</span> <span class="pl-s"><span class="pl-pds">"</span>/filetorrentselect<span class="pl-pds">"</span></span>,    <span class="pl-smi">wtHttpApi</span>.<span class="pl-en">fileTorrentSelect</span>());
+<span class="pl-smi">app</span>.<span class="pl-en">post</span>(<span class="pl-smi">config</span>.<span class="pl-smi">base_url</span> <span class="pl-k">+</span> <span class="pl-s"><span class="pl-pds">"</span>/filetorrentdeselect<span class="pl-pds">"</span></span>,  <span class="pl-smi">wtHttpApi</span>.<span class="pl-en">fileTorrentDeselect</span>());
+
+<span class="pl-k">var</span> <span class="pl-c1">CLEAR</span> <span class="pl-k">=</span> <span class="pl-smi">http</span>.<span class="pl-en">createServer</span>( app );
+
+<span class="pl-c1">CLEAR</span>.<span class="pl-en">listen</span>(<span class="pl-smi">config</span>.<span class="pl-c1">clear</span>.<span class="pl-c1">port</span>, <span class="pl-smi">config</span>.<span class="pl-c1">clear</span>.<span class="pl-c1">host</span>);</pre></div>
+
+<h2>
+<a id="documentation" class="anchor" href="#documentation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Documentation</h2>
+
+<p>Please check the source code at that moment.</p>
+
+<h1>
+<a id="read-more" class="anchor" href="#read-more" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Read more</h1>
+
+<ul>
+<li><a href="https://github.com/feross/webtorrent">https://github.com/feross/webtorrent</a></li>
+<li><a href="http://expressjs.com/en/api.html">http://expressjs.com/en/api.html</a></li>
+</ul>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/mh-cbon/webtorrent-http-api">Webtorrent-http-api</a> is maintained by <a href="https://github.com/mh-cbon">mh-cbon</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
